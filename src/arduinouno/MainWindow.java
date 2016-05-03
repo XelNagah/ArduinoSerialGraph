@@ -5,7 +5,16 @@
  */
 package arduinouno;
 
-import static jdk.nashorn.internal.objects.NativeMath.round;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import org.jfree.chart.ChartPanel;
 
 /**
@@ -14,44 +23,50 @@ import org.jfree.chart.ChartPanel;
  */
 public class MainWindow extends javax.swing.JFrame {
 
+    private TimeChartGenerator theTimeChart;
+    private File saveFile=null;
+
+    public void setTheTimeChart(TimeChartGenerator theTimeChart) {
+        this.theTimeChart = theTimeChart;
+    }
+
     /**
      * Creates new form MainWindow
      */
-    
     public MainWindow() {
         initComponents();
     }
-    
+
     public void updateA0Reading(double value) {
         jTextA0Reading.setText(String.format("%.2f", value));
     }
-    
+
     public void updateA1Reading(double value) {
         jTextA1Reading.setText(String.format("%.2f", value));
     }
-    
+
     public void updateA2Reading(double value) {
         jTextA2Reading.setText(String.format("%.2f", value));
     }
-    
+
     public void updateA3Reading(double value) {
         jTextA3Reading.setText(String.format("%.2f", value));
     }
-    
+
     public void updateA4Reading(double value) {
         jTextA4Reading.setText(String.format("%.2f", value));
     }
-    
+
     public void updateA5Reading(double value) {
         jTextA5Reading.setText(String.format("%.2f", value));
     }
 
-    public void setChartPanel(ChartPanel theChartPanel){
+    public void setChartPanel(ChartPanel theChartPanel) {
         theChartPanel.setSize(jPanel1.getSize());
         jPanel1.add(theChartPanel);
         jPanel1.getParent().validate();
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -83,6 +98,9 @@ public class MainWindow extends javax.swing.JFrame {
         jCheckBoxA3 = new javax.swing.JCheckBox();
         jCheckBoxA4 = new javax.swing.JCheckBox();
         jCheckBoxA5 = new javax.swing.JCheckBox();
+        jButtonGuardar = new javax.swing.JButton();
+        jButtonSelectFile = new javax.swing.JButton();
+        jTextFieldSaveFile = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -159,6 +177,29 @@ public class MainWindow extends javax.swing.JFrame {
 
         jCheckBoxA5.setText("jCheckBox1");
 
+        jButtonGuardar.setText("Guardar");
+        jButtonGuardar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonGuardarMouseClicked(evt);
+            }
+        });
+        jButtonGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonGuardarActionPerformed(evt);
+            }
+        });
+
+        jButtonSelectFile.setText("Select File");
+        jButtonSelectFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSelectFileActionPerformed(evt);
+            }
+        });
+
+        jTextFieldSaveFile.setEditable(false);
+        jTextFieldSaveFile.setHorizontalAlignment(javax.swing.JTextField.LEFT);
+        jTextFieldSaveFile.setText("None");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -200,7 +241,7 @@ public class MainWindow extends javax.swing.JFrame {
                             .addComponent(jCheckBoxA3, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jCheckBoxA4, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jCheckBoxA5, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(14, 14, 14)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -217,16 +258,16 @@ public class MainWindow extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jCheckBoxA0, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jCheckBoxA1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 23, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jButtonExit, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(12, 12, 12))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap())))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(jButtonExit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jSeparator3, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                            .addComponent(jButtonGuardar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButtonSelectFile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jTextFieldSaveFile))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -272,7 +313,13 @@ public class MainWindow extends javax.swing.JFrame {
                             .addComponent(jCheckBoxA5))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jSeparator3, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldSaveFile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonSelectFile)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonGuardar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButtonExit)
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
@@ -288,13 +335,34 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonExitMouseClicked
 
     private void jCheckBoxA0MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jCheckBoxA0MouseClicked
-        Boolean sA0=jCheckBoxA0.isSelected();
+        Boolean sA0 = jCheckBoxA0.isSelected();
         if (sA0) {
             jCheckBoxA0.setSelected(true);
         } else {
             jCheckBoxA0.setSelected(false);
         }
     }//GEN-LAST:event_jCheckBoxA0MouseClicked
+
+    private void jButtonGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGuardarActionPerformed
+        Double[][] theDataVector = theTimeChart.getPlotInfo();
+        if (saveFile!= null) {
+            dataVectorToCSVFile(saveFile, theDataVector);
+        }
+    }//GEN-LAST:event_jButtonGuardarActionPerformed
+
+    private void jButtonGuardarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonGuardarMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonGuardarMouseClicked
+
+    private void jButtonSelectFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectFileActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        int returnVal = fileChooser.showSaveDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            saveFile = fileChooser.getSelectedFile();
+            jTextFieldSaveFile.setText(saveFile.getName());
+            
+        }
+    }//GEN-LAST:event_jButtonSelectFileActionPerformed
 
     /**
      * @param args the command line arguments
@@ -333,6 +401,8 @@ public class MainWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonExit;
+    private javax.swing.JButton jButtonGuardar;
+    private javax.swing.JButton jButtonSelectFile;
     private javax.swing.JCheckBox jCheckBoxA0;
     private javax.swing.JCheckBox jCheckBoxA1;
     private javax.swing.JCheckBox jCheckBoxA2;
@@ -354,5 +424,45 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextA3Reading;
     private javax.swing.JTextField jTextA4Reading;
     private javax.swing.JTextField jTextA5Reading;
+    private javax.swing.JTextField jTextFieldSaveFile;
     // End of variables declaration//GEN-END:variables
+
+    private void dataVectorToCSVFile(File theFile, Double[][] theDataVector) {
+        PrintWriter writer;
+        
+        int columns = theDataVector[0].length;
+        
+        String header = new String();
+        for (int j = 0; j < columns; j++) {
+            if (j == columns - 1) {
+                header = header.concat("A" + j);
+            } else {
+                header = header.concat("A" + j + ",");
+            }
+        }
+
+        try {
+            writer = new PrintWriter(theFile, "UTF-8");
+            int i = 0;
+            writer.println(header);
+            
+            while (i < theDataVector.length) {
+                String line = new String();
+                for (int j = 0; j < columns; j++) {
+                    Double value = theDataVector[i][j];
+                    if (j == columns - 1) {
+                        line = line.concat("\""+String.format("%.2f", value)+"\"");
+                    } else {
+                        line = line.concat("\""+String.format("%.2f", value)+"\"" + ",");
+                    }
+                }
+                writer.println(line);
+                i++;
+            }
+            writer.close();
+        } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 }

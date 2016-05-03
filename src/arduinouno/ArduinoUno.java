@@ -28,6 +28,7 @@ public class ArduinoUno {
 
         final TimeChartGenerator theTimeChart = new TimeChartGenerator("Dynamic Line And TimeSeries Chart", serialLink, analogInputs);
 
+        theMainWindow.setTheTimeChart(theTimeChart);
         theMainWindow.setChartPanel(theTimeChart.getChartpanel());
         theMainWindow.setVisible(true);
 

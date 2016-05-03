@@ -8,6 +8,7 @@ package arduinouno;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.swing.Timer;
@@ -50,6 +51,7 @@ public class TimeChartGenerator extends ApplicationFrame implements ActionListen
     private TimeSeries series4;
     private TimeSeries series5;
     private Boolean[] analogInputs;
+    private XYPlot plot;
 
     final public ChartPanel chartPanel;
 
@@ -69,10 +71,10 @@ public class TimeChartGenerator extends ApplicationFrame implements ActionListen
     public TimeChartGenerator(final String title, final SerialReader theSerialLink, Boolean[] analogInputs) {
 
         super(title);
-        this.analogInputs=analogInputs;
+        this.analogInputs = analogInputs;
         TimeSeriesCollection dataset = null, dataset0 = null, dataset1 = null, dataset2 = null, dataset3 = null, dataset4 = null, dataset5 = null;
         this.series = new TimeSeries("offset", Millisecond.class);
-        
+
         //Serie de datos para el offset hacia la izquierda - (Magia)
         dataset = new TimeSeriesCollection(this.series);
 
@@ -123,9 +125,6 @@ public class TimeChartGenerator extends ApplicationFrame implements ActionListen
         return this.chartPanel;
     }
 
-//    public void setValue(int aValue) {
-//        value1 = aValue;
-//    }
     /**
      * Creates a sample chart.
      *
@@ -144,7 +143,7 @@ public class TimeChartGenerator extends ApplicationFrame implements ActionListen
                 false
         );
 
-        final XYPlot plot = result.getXYPlot();
+        plot = result.getXYPlot();
 
         //Set Graph Parameters
         plot.setBackgroundPaint(new Color(0xffffe0));
@@ -197,6 +196,7 @@ public class TimeChartGenerator extends ApplicationFrame implements ActionListen
      *
      * @param e the action event.
      */
+    @Override
     public void actionPerformed(final ActionEvent e) {
 
         Date date = new Date();
@@ -205,7 +205,7 @@ public class TimeChartGenerator extends ApplicationFrame implements ActionListen
         Millisecond now = new Millisecond(date);
 
         this.series.add(now, null);
-        
+
         if (series0 != null) {
             this.value0 = Double.parseDouble(serialLink.getValueReadA0()) * 5 / 1023;
             series0.add(graphTime, value0);
@@ -241,5 +241,29 @@ public class TimeChartGenerator extends ApplicationFrame implements ActionListen
 
     public void triggerA0(Boolean state) {
 
+    }
+
+    public Double[][] getPlotInfo() {
+        
+        //Get the length to plot from dummy signal "offset"
+        XYDataset theDataset;
+        theDataset = plot.getDataset(0);
+        
+        int dataLenght = theDataset.getItemCount(0);
+        int datasets = plot.getDatasetCount();
+
+        Double[][] dataVector = new Double[dataLenght][datasets - 1];
+
+        for (int j = 1; j < datasets; j++) {
+            theDataset = plot.getDataset(j);
+            int i = 0;
+            while (i < dataLenght) {
+                Double value = theDataset.getYValue(0, i);
+                dataVector[i][j-1] = value;
+                i++;
+            }
+        }
+
+        return dataVector;
     }
 }
